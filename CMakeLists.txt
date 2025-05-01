@@ -1,3 +1,4 @@
+# gbk
 cmake_minimum_required(VERSION 3.29)
 
 # Éú³ÉÆ÷ÉèÖÃ

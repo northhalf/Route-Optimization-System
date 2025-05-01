@@ -2,10 +2,17 @@
 // 临接表类
 #ifndef ADJLIST_HPP
 #define ADJLIST_HPP
+
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+// 路径类，存储路径长度和依次经过的节点
+class Path {
+public:
+    size_t distance;
+    std::vector<std::string> pass_nodes;
+};
 
 // 临接表边节点
 class EdgeNode {
@@ -19,7 +26,7 @@ public:
     friend class AdjList;
 
 private:
-    std::unique_ptr<EdgeNode> next_edge;  // 指向下一边节点
+    std::shared_ptr<EdgeNode> next_edge;  // 指向下一边节点
     int endvex;     // 有向边指向顶点在临接表顶点数组的下标
     int pass_flow;  // 人流量
     int length;     // 边的长度
@@ -28,11 +35,15 @@ private:
 // 临接表的顶点节点
 class VexNode {
 public:
+    // 让该顶点增加一条指向另外一个顶点的边，即增加边节点
+    // 传入另外一个顶点在顶点数组的下标
     void insert_point_to(int end_index);
+
+    friend class AdjList;
 
 private:
     std::string vertex;                   // 顶点名字
-    std::unique_ptr<EdgeNode> edge_list;  // 指向边表第一个节点
+    std::shared_ptr<EdgeNode> edge_list;  // 指向边表第一个节点
 };
 
 class AdjList {
@@ -45,11 +56,12 @@ public:
     // 给临接表插入一条边
     // 传入开始地点和到达地点，路径距离
     void insert_edge(std::string start, std::string end, int dist);
-    // 最短路径查找
-    std::vector<std::string> min_dist_Dijkstra(
-        std::string start, std::string end
-    );
-    std::vector<std::vector<std::vector<std::string>>> min_dist_Floyed();
+    // Dijkstra最短路径查找，返回得到的路径
+    Path min_dist_Dijkstra(std::string start, std::string end);
+    // Floyed算法查找所有最短路径
+    // 返回两个哈希表嵌套，实现像是path["A"]["B"]查找路径
+    std::unordered_map<std::string, std::unordered_map<std::string, Path>>
+    min_dist_Floyed();
 
 private:
     std::vector<VexNode> vexs;                       // 顶点数组
