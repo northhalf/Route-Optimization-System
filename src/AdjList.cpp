@@ -1,5 +1,5 @@
-/*gbk*/
-// AdjList.cpp 实现类的方法具体实现
+/*utf-8*/
+// AdjList.cpp 瀹炵幇绫荤殑鏂规硶鍏蜂綋瀹炵幇
 #include <AdjList.hpp>
 #include <memory>
 #include <string>

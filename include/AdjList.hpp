@@ -1,5 +1,5 @@
-/*gbk*/
-// ÁÙ½Ó±íÀà
+/*utf-8*/
+// ä¸´æ¥è¡¨ç±»
 #ifndef ADJLIST_HPP
 #define ADJLIST_HPP
 
@@ -7,66 +7,69 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-// Â·¾¶Àà£¬´æ´¢Â·¾¶³¤¶ÈºÍÒÀ´Î¾­¹ıµÄ½Úµã
+// è·¯å¾„ç±»ï¼Œå­˜å‚¨è·¯å¾„é•¿åº¦å’Œä¾æ¬¡ç»è¿‡çš„èŠ‚ç‚¹
 class Path {
 public:
-    size_t distance;
-    std::vector<std::string> pass_nodes;
+    size_t distance;                      // è·¯å¾„æ€»è·ç¦»
+    size_t pass_flow;                     // è·¯å¾„æ€»äººæµé‡
+    std::vector<std::string> pass_nodes;  // è·¯å¾„ç»è¿‡çš„èŠ‚ç‚¹
 };
 
-// ÁÙ½Ó±í±ß½Úµã
+// ä¸´æ¥è¡¨è¾¹èŠ‚ç‚¹
 class EdgeNode {
 public:
-    // ¹¹Ôìº¯Êı
-    // ´«ÈëÂ·¾¶³¤¶È£¬ÈËÁ÷Á¿£¬ÖÕµãÎ»ÓÚ¶¥µãÊı×éµÄÏÂ±ê£¬ÏÂÒ»±ß½Úµã
+    // æ„é€ å‡½æ•°
+    // ä¼ å…¥è·¯å¾„é•¿åº¦ï¼Œäººæµé‡ï¼Œç»ˆç‚¹ä½äºé¡¶ç‚¹æ•°ç»„çš„ä¸‹æ ‡ï¼Œä¸‹ä¸€è¾¹èŠ‚ç‚¹
     EdgeNode(int len = 0, int flow = 0, int end = 0, EdgeNode* next = nullptr)
         : length(len), pass_flow(flow), endvex(end), next_edge(next) {}
-    // ÉèÖÃÓÑÔªÀà±ãÓÚ·ÃÎÊ
+    // è®¾ç½®å‹å…ƒç±»ä¾¿äºè®¿é—®
     friend class VexNode;
     friend class AdjList;
 
 private:
-    std::shared_ptr<EdgeNode> next_edge;  // Ö¸ÏòÏÂÒ»±ß½Úµã
-    int endvex;     // ÓĞÏò±ßÖ¸Ïò¶¥µãÔÚÁÙ½Ó±í¶¥µãÊı×éµÄÏÂ±ê
-    int pass_flow;  // ÈËÁ÷Á¿
-    int length;     // ±ßµÄ³¤¶È
+    std::shared_ptr<EdgeNode> next_edge;  // æŒ‡å‘ä¸‹ä¸€è¾¹èŠ‚ç‚¹
+    int endvex;     // æœ‰å‘è¾¹æŒ‡å‘é¡¶ç‚¹åœ¨ä¸´æ¥è¡¨é¡¶ç‚¹æ•°ç»„çš„ä¸‹æ ‡
+    int pass_flow;  // äººæµé‡
+    int length;     // è¾¹çš„é•¿åº¦
 };
 
-// ÁÙ½Ó±íµÄ¶¥µã½Úµã
+// ä¸´æ¥è¡¨çš„é¡¶ç‚¹èŠ‚ç‚¹
 class VexNode {
 public:
-    // ÈÃ¸Ã¶¥µãÔö¼ÓÒ»ÌõÖ¸ÏòÁíÍâÒ»¸ö¶¥µãµÄ±ß£¬¼´Ôö¼Ó±ß½Úµã
-    // ´«ÈëÁíÍâÒ»¸ö¶¥µãÔÚ¶¥µãÊı×éµÄÏÂ±ê
+    // è®©è¯¥é¡¶ç‚¹å¢åŠ ä¸€æ¡æŒ‡å‘å¦å¤–ä¸€ä¸ªé¡¶ç‚¹çš„è¾¹ï¼Œå³å¢åŠ è¾¹èŠ‚ç‚¹
+    // ä¼ å…¥å¦å¤–ä¸€ä¸ªé¡¶ç‚¹åœ¨é¡¶ç‚¹æ•°ç»„çš„ä¸‹æ ‡
     void insert_point_to(int end_index);
 
     friend class AdjList;
 
 private:
-    std::string vertex;                   // ¶¥µãÃû×Ö
-    std::shared_ptr<EdgeNode> edge_list;  // Ö¸Ïò±ß±íµÚÒ»¸ö½Úµã
+    std::string vertex;                   // é¡¶ç‚¹åå­—
+    std::shared_ptr<EdgeNode> edge_list;  // æŒ‡å‘è¾¹è¡¨ç¬¬ä¸€ä¸ªèŠ‚ç‚¹
 };
 
 class AdjList {
 public:
-    // ÁÙ½Ó±í¹¹Ôìº¯Êı£¬´«Èë¶¥µãºÍ±ß¸öÊı
+    // ä¸´æ¥è¡¨æ„é€ å‡½æ•°ï¼Œä¼ å…¥é¡¶ç‚¹å’Œè¾¹ä¸ªæ•°
     AdjList(int vn = 0, int en = 0) : vex_num(vn), edge_num(en) {
-        // ÌáÇ°Ê¹Êı×éÔ¤Áô¿Õ¼ä
+        // æå‰ä½¿æ•°ç»„é¢„ç•™ç©ºé—´
         vexs.reserve(vn);
     }
-    // ¸øÁÙ½Ó±í²åÈëÒ»Ìõ±ß
-    // ´«Èë¿ªÊ¼µØµãºÍµ½´ïµØµã£¬Â·¾¶¾àÀë
+    // ç»™ä¸´æ¥è¡¨æ’å…¥ä¸€æ¡è¾¹
+    // ä¼ å…¥å¼€å§‹åœ°ç‚¹å’Œåˆ°è¾¾åœ°ç‚¹ï¼Œè·¯å¾„è·ç¦»
     void insert_edge(std::string start, std::string end, int dist);
-    // Dijkstra×î¶ÌÂ·¾¶²éÕÒ£¬·µ»ØµÃµ½µÄÂ·¾¶
+    // Dijkstraæœ€çŸ­è·¯å¾„æŸ¥æ‰¾ï¼Œè¿”å›å¾—åˆ°çš„è·¯å¾„
     Path min_dist_Dijkstra(std::string start, std::string end);
-    // FloyedËã·¨²éÕÒËùÓĞ×î¶ÌÂ·¾¶
-    // ·µ»ØÁ½¸ö¹şÏ£±íÇ¶Ì×£¬ÊµÏÖÏñÊÇpath["A"]["B"]²éÕÒÂ·¾¶
+    // Floyedç®—æ³•æŸ¥æ‰¾æ‰€æœ‰æœ€çŸ­è·¯å¾„
+    // è¿”å›ä¸¤ä¸ªå“ˆå¸Œè¡¨åµŒå¥—ï¼Œå®ç°åƒæ˜¯path["A"]["B"]æŸ¥æ‰¾è·¯å¾„
     std::unordered_map<std::string, std::unordered_map<std::string, Path>>
     min_dist_Floyed();
+    // æŸ¥æ‰¾ä»æŒ‡å®šèµ·ç‚¹å’Œç»ˆç‚¹çš„æ‰€æœ‰å¯èƒ½è·¯å¾„
+    std::vector<Path> find_all_path(std::string start, std::string end);
 
 private:
-    std::vector<VexNode> vexs;                       // ¶¥µãÊı×é
-    std::unordered_map<std::string, int> vex_index;  // ¶¥µãºÍÊı×éÏÂ±êµÄÓ³Éä
-    int vex_num, edge_num;  // ¶¥µã¸öÊıºÍ±ßµÄ¸öÊı
+    std::vector<VexNode> vexs;                       // é¡¶ç‚¹æ•°ç»„
+    std::unordered_map<std::string, int> vex_index;  // é¡¶ç‚¹å’Œæ•°ç»„ä¸‹æ ‡çš„æ˜ å°„
+    int vex_num, edge_num;  // é¡¶ç‚¹ä¸ªæ•°å’Œè¾¹çš„ä¸ªæ•°
 };
 
 #endif

@@ -1,6 +1,4 @@
+/*utf-8*/
 #include <AdjList.hpp>
 #include <iostream>
-int main() {
-    std::cout << 10 << std::endl;
-    return 0;
-}
+int main() { return 0; }

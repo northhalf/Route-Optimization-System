@@ -1,9 +1,9 @@
-# gbk
-# vscodeÅäÖÃÎÄ¼ş
+# utf-8
+# vscodeé…ç½®æ–‡ä»¶
 .vscode/
-# cmake¹¹½¨ÎÄ¼ş
+# cmakeæ„å»ºæ–‡ä»¶
 build/
-# ¿ÉÖ´ĞĞÎÄ¼şÉú³ÉÂ·¾¶
+# å¯æ‰§è¡Œæ–‡ä»¶ç”Ÿæˆè·¯å¾„
 output/
 # Prerequisites
 *.d
