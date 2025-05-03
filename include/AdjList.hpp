@@ -21,8 +21,11 @@ class EdgeNode {
 public:
     // 构造函数
     // 传入路径长度，人流量，终点位于顶点数组的下标，下一边节点
-    EdgeNode(int len = 0, int flow = 0, int end = 0, EdgeNode* next = nullptr)
-        : length(len), pass_flow(flow), endvex(end), next_edge(next) {}
+    EdgeNode(
+        int len = 0, int flow = 0, int end = 0,
+        std::shared_ptr<EdgeNode> next = nullptr
+    )
+        : next_edge(next), endvex(end), pass_flow(flow), length(len) {}
     // 设置友元类便于访问
     friend class VexNode;
     friend class AdjList;
@@ -37,9 +40,11 @@ private:
 // 临接表的顶点节点
 class VexNode {
 public:
+    VexNode(VexType vex, std::shared_ptr<EdgeNode> edge_list = nullptr)
+        : vertex(vex), edge_list(edge_list) {}
     // 让该顶点增加一条指向另外一个顶点的边，即增加边节点
-    // 传入另外一个顶点在顶点数组的下标
-    void insert_point_to(int end_index);
+    // 传入另外一个顶点在顶点数组的下标，以及人流量和边长度信息
+    void insert_point_to(size_t end_index, size_t length, size_t pass_flow);
 
     friend class AdjList;
 
@@ -56,8 +61,10 @@ public:
         vexs.reserve(vn);
     }
     // 给临接表插入一条边
-    // 传入开始地点和到达地点，路径距离
-    void insert_edge(VexType start, VexType end, size_t dist);
+    // 传入开始地点和到达地点，路径距离，人流量
+    void insert_edge(
+        VexType start, VexType end, size_t length, size_t pass_flow
+    );
     // Dijkstra最短路径查找，返回得到的路径
     Path min_dist_Dijkstra(VexType start, VexType end);
     // Floyed算法查找所有最短路径
