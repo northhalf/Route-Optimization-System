@@ -44,7 +44,7 @@ public:
         : vertex(vex), edge_list(edge_list) {}
     // 让该顶点增加一条指向另外一个顶点的边，即增加边节点
     // 传入另外一个顶点在顶点数组的下标，以及人流量和边长度信息
-    void insert_point_to(size_t end_index, size_t length, size_t pass_flow);
+    void insert_point_to(size_t end_index, size_t length, size_t pass_flow = 0);
 
     friend class AdjList;
 
@@ -63,7 +63,7 @@ public:
     // 给临接表插入一条边
     // 传入开始地点和到达地点，路径距离，人流量
     void insert_edge(
-        VexType start, VexType end, size_t length, size_t pass_flow
+        VexType start, VexType end, size_t length, size_t pass_flow = 0
     );
     // Dijkstra最短路径查找，返回得到的路径
     Path min_dist_Dijkstra(VexType start, VexType end);
