@@ -44,7 +44,9 @@ public:
         : vertex(vex), edge_list(edge_list) {}
     // 让该顶点增加一条指向另外一个顶点的边，即增加边节点
     // 传入另外一个顶点在顶点数组的下标，以及人流量和边长度信息
-    void insert_point_to(size_t end_index, size_t length, size_t pass_flow = 0);
+    // return:
+    // 返回是否添加了一条边，如果添加了则返回true，如果边已经存在则返回false
+    bool insert_point_to(size_t end_index, size_t length, size_t pass_flow = 0);
 
     friend class AdjList;
 
