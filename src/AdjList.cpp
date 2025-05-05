@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 // 考虑可能多次调用，设为inline
@@ -67,29 +68,14 @@ void AdjList::insert_edge(
     if (edge_flag) edge_num++;
 }
 
-// Dijkstra最短路径查找，返回得到的路径
-Path AdjList::min_dist_Dijkstra(VexType start, VexType end) {
-    // 用来记录待搜索的顶点和到起点的距离的结构体
+// 实现对于图的从起点到不同顶点的最短距离数组，对应人流量数组，以及每条最短路径终点的
+// 父节点数组的查找，并将这三个数据以元组形式打包返回
+std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
+AdjList::__get_dist_passFlow_parent(size_t start_index) {
     struct Dist_vex {
         size_t vex_index;
         size_t dist;
     };
-
-    // 首先查找顶点是否存在，以及终点是否与起点重合
-    if (vex_index.find(start) == vex_index.end() ||
-        vex_index.find(end) == vex_index.end())
-        return Path{};
-    // 判断起点是否和终点重合
-    if (start == end) {
-        Path path{};
-        path.pass_nodes.emplace_back(start);
-        return path;
-    }
-
-    // 顶点存在则查找顶点对应的顶点数组中的下标
-    size_t start_index = vex_index[start];
-    size_t end_index = vex_index[end];
-
     // 初始化记录起点到对应顶点的最小距离的dist数组
     std::vector<size_t> dist(vex_num, SIZE_MAX);
     dist[start_index] = 0;  // 起点到自身的距离为0
@@ -137,18 +123,89 @@ Path AdjList::min_dist_Dijkstra(VexType start, VexType end) {
             }
         }
     }
+    return {dist, pass_flow, parent_index};
+}
+
+// 查找从指定起点出发的所有最短路径
+std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
+    VexType start
+) {
+    // 首先查找顶点是否存在
+    if (vex_index.find(start) == vex_index.end())
+        return std::unordered_map<VexType, Path>{};
+
+    // 顶点存在则查找顶点对应的顶点数组中的下标
+    size_t start_index = vex_index[start];
+
+    // dist:        记录起点到对应顶点的最小距离dist数组
+    // pass_flow:   记录与dist数组同步的人流量信息
+    // parend_index:记录最短路径的每个节点的父亲索引
+    auto [dist, pass_flow, parent_index] =
+        __get_dist_passFlow_parent(start_index);
+
+    // 记录路径
+    std::unordered_map<VexType, Path> path_map;
+    // 枚举终点
+    for (size_t index = 0; index < vex_num; index++) {
+        // 如果路径不存在则跳过循环
+        if (dist[index] == SIZE_MAX) continue;
+        // 记录一条路径
+        Path path{dist[index], pass_flow[index], {}};
+        // 从终点往回回溯
+        for (size_t now_index = index; now_index != start_index;
+             now_index = parent_index[now_index]) {
+            path.pass_nodes.emplace_back(vexs[now_index].vertex);
+        }
+        path.pass_nodes.emplace_back(start);
+        // 将路径逆转，使得起点位于开头
+        std::reverse(path.pass_nodes.begin(), path.pass_nodes.end());
+        // 将路径加入哈希表中
+        path_map[vexs[index].vertex] = std::move(path);
+    }
+    return path_map;
+}
+
+// Dijkstra最短路径查找，返回一条指定的最短路径
+Path AdjList::min_dist_one_path_Dijkstra(VexType start, VexType end) {
+    // 用来记录待搜索的顶点和到起点的距离的结构体
+    struct Dist_vex {
+        size_t vex_index;
+        size_t dist;
+    };
+
+    // 首先查找顶点是否存在
+    if (vex_index.find(start) == vex_index.end() ||
+        vex_index.find(end) == vex_index.end())
+        return Path{};
+    // 判断起点是否和终点重合
+    if (start == end) {
+        Path path{0, 0, {start}};
+        return path;
+    }
+
+    // 顶点存在则查找顶点对应的顶点数组中的下标
+    size_t start_index = vex_index[start];
+    size_t end_index = vex_index[end];
+
+    // dist:        记录起点到对应顶点的最小距离dist数组
+    // pass_flow:   记录与dist数组同步的人流量信息
+    // parend_index:记录最短路径的每个节点的父亲索引
+    auto [dist, pass_flow, parent_index] =
+        __get_dist_passFlow_parent(start_index);
+
+    // 定义记录这个顶点是否被搜索过的无序集
     // 判断是否存在路径，不存在则返回空路径
     if (dist[end_index] == SIZE_MAX) return Path{};
     // 记录路径
-    Path path;
-    path.distance = dist[end_index];
-    path.pass_flow = pass_flow[end_index];
+    Path path{dist[end_index], pass_flow[end_index], {}};
     // 从终点往回回溯
     for (size_t now_index = end_index; now_index != start_index;
          now_index = parent_index[now_index]) {
         path.pass_nodes.emplace_back(vexs[now_index].vertex);
     }
+    // 将起点加入到路径中
     path.pass_nodes.emplace_back(start);
+    // 翻转数组，使得起点在开头
     std::reverse(path.pass_nodes.begin(), path.pass_nodes.end());
     return path;
 }

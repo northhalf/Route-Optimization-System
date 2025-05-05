@@ -29,6 +29,7 @@
 
 - [x] `VexNode::insert_point_to()` 实现为顶点节点插入边节点（正在编写）
 - [x] `AdjList::insert_edge()` 实现为临接表插入一条边
-- [x] `AdjList::min_dist_Dijkstra()` 实现Dijkstra算法查找一条最短路径
+- [x] `AdjList::min_dist_multi_path_Dijkstra()` 实现Dijkstra算法查找从起点到其他所有顶点的最短路径
+- [x] `AdjList::min_dist_one_path_Dijkstra()` 实现Dijkstra算法查找从起点到某一个顶点的最短路径
 - [ ] `AdjList::min_dist_Floyed()` 实现Floyed算法查找所有最短路径
 - [ ] `AdjList::find_all_path()` 实现查找从指定起点到终点所有可能路径
