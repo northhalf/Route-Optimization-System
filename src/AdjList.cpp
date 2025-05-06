@@ -44,19 +44,21 @@ Path AdjList::possible_evacuation(
 ) {
     // 路径节点，记录这个节点的索引，从起点到这个顶点的路径，
     // 起点到这个节点的长度，以及起点到这个节点的路径人数
+    // 一个无序set记录经历过的节点
     struct PathNode {
         size_t index;
         std::vector<size_t> path;
         size_t dis;
         size_t people_num;
+        std::unordered_set<size_t> visited;
     };
     // 记录起点和终点在顶点数组的下标
     size_t start_index = vex_index[start];
     size_t end_index = vex_index[end];
     // 队列记录待搜索的顶点
-    // 起点加入队列，无父亲节点，且设置距离和人数都为0
+    // 起点加入队列，无父亲节点，且设置距离和人数都为0，起点设置为已经访问
     std::queue<PathNode> que(std::deque<PathNode>{
-        {start_index, {start_index}, 0, 0}});
+        {start_index, {start_index}, 0, 0, {start_index}}});
 
     while (!que.empty()) {
         // 获取队首顶点
@@ -69,8 +71,7 @@ Path AdjList::possible_evacuation(
             if (edge->people_num / edge->length > max_one_path_density)
                 continue;
             // 如果这条边的目标地点位于路径中，则跳过，避免重复路径
-            if (std::find(node.path.begin(), node.path.end(), edge->endvex) !=
-                node.path.end()) {
+            if (node.visited.find(edge->endvex) != node.visited.end()) {
                 continue;
             }
 
@@ -97,9 +98,10 @@ Path AdjList::possible_evacuation(
                 return path;
             }
             // 将这条边到达的顶点视为新顶点，初始化
-            PathNode new_node{edge->endvex, node.path, dis, pp};
+            PathNode new_node{edge->endvex, node.path, dis, pp, node.visited};
             // 将这个顶点加入路径
             new_node.path.emplace_back(edge->endvex);
+            new_node.visited.emplace(edge->endvex);
             // 顶点加入队列中
             que.push(std::move(new_node));
         }
