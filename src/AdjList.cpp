@@ -42,71 +42,12 @@ inline bool VexNode::insert_point_to(
 Path AdjList::possible_evacuation(
     VexType start, VexType end, size_t max_density, size_t max_one_path_density
 ) {
-    // 路径节点，记录这个节点的索引，从起点到这个顶点的路径，
-    // 起点到这个节点的长度，以及起点到这个节点的路径人数
-    // 一个无序set记录经历过的节点
-    struct PathNode {
-        size_t index;
-        std::vector<size_t> path;
-        size_t dis;
-        size_t people_num;
-        std::unordered_set<size_t> visited;
-    };
-    // 记录起点和终点在顶点数组的下标
-    size_t start_index = vex_index[start];
-    size_t end_index = vex_index[end];
-    // 队列记录待搜索的顶点
-    // 起点加入队列，无父亲节点，且设置距离和人数都为0，起点设置为已经访问
-    std::queue<PathNode> que(std::deque<PathNode>{
-        {start_index, {start_index}, 0, 0, {start_index}}});
+    auto all_path =
+        __find_path(start, end, false, max_density, max_one_path_density);
 
-    while (!que.empty()) {
-        // 获取队首顶点
-        PathNode node(std::move(que.front()));
-        que.pop();
-        // 遍历与这个顶点相连的边
-        for (auto edge = vexs[node.index].edge_list; edge != nullptr;
-             edge = edge->next_edge) {
-            // 如果这条边的人流密度大于限制密度则不考虑
-            if (edge->people_num / edge->length > max_one_path_density)
-                continue;
-            // 如果这条边的目标地点位于路径中，则跳过，避免重复路径
-            if (node.visited.find(edge->endvex) != node.visited.end()) {
-                continue;
-            }
+    if (all_path.size() == 0) return Path{};
 
-            // 如果到达了终点，则判断人流量密度是否满足要求，并获取路径信息
-            size_t pp = node.people_num + edge->people_num,
-                   dis = node.dis + edge->length;
-            if (edge->endvex == end_index) {
-                // 如果路径人流量密度大于要求值，则跳过这条路径
-                if (pp / dis > max_density) {
-                    continue;
-                }
-                // 获取路径
-                Path path{dis, pp, std::move(node.path)};
-                // 将终点加入路径
-                path.pass_nodes.emplace_back(end_index);
-                // 将路径中的索引改为顶点
-                std::transform(
-                    path.pass_nodes.begin(), path.pass_nodes.end(),
-                    path.pass_nodes.begin(),
-                    [this](const size_t node_index) {
-                        return this->vexs[node_index].vertex;
-                    }
-                );
-                return path;
-            }
-            // 将这条边到达的顶点视为新顶点，初始化
-            PathNode new_node{edge->endvex, node.path, dis, pp, node.visited};
-            // 将这个顶点加入路径
-            new_node.path.emplace_back(edge->endvex);
-            new_node.visited.emplace(edge->endvex);
-            // 顶点加入队列中
-            que.push(std::move(new_node));
-        }
-    }
-    return Path{};
+    return std::move(all_path.front());
 }
 
 // 实现插入一条边
@@ -277,4 +218,112 @@ Path AdjList::min_dist_one_path_Dijkstra(VexType start, VexType end) {
     // 翻转数组，使得起点在开头
     std::reverse(path.pass_nodes.begin(), path.pass_nodes.end());
     return path;
+}
+
+std::vector<Path> AdjList::find_all_path(
+    VexType start, VexType end, size_t max_density, size_t max_one_path_density
+) {
+    auto all_path =
+        __find_path(start, end, true, max_density, max_one_path_density);
+    std::sort(
+        all_path.begin(), all_path.end(),
+        [](const Path& path_1, const Path& path_2) -> bool {
+            return path_1.distance < path_2.distance;
+        }
+    );
+    return all_path;
+}
+std::vector<Path> AdjList::__find_path(
+    VexType start, VexType end, bool multi_flag, size_t max_density,
+    size_t max_one_path_density
+) {
+    std::vector<Path> all_path;
+    // 路径节点，记录这个节点的索引，从起点到这个顶点的路径，
+    // 起点到这个节点的长度，以及起点到这个节点的路径人数
+    // 一个无序set记录经历过的节点
+    struct PathNode {
+        size_t index;              // 顶点在顶点数组中的下标
+        std::vector<size_t> path;  // 具体路径，即依次通过的顶点索引
+        size_t dis;                // 这条路径的距离
+        size_t people_num;         // 这条路径的总人数
+        std::unordered_set<size_t>
+            visited;  // 这条路径经过的节点，用于避免重复路径
+    };
+    // 记录起点和终点在顶点数组的下标
+    size_t start_index = vex_index[start];
+    size_t end_index = vex_index[end];
+    // 队列记录待搜索的顶点
+    // 起点加入队列，无父亲节点，且设置距离和人数都为0，起点设置为已经访问
+    std::queue<PathNode> que(std::deque<PathNode>{
+        {start_index, {start_index}, 0, 0, {start_index}}});
+
+    while (!que.empty()) {
+        // 获取队首顶点
+        PathNode node(std::move(que.front()));
+        que.pop();
+        // 遍历与这个顶点相连的边
+        for (auto edge = vexs[node.index].edge_list; edge != nullptr;
+             edge = edge->next_edge) {
+            // 如果这条边的人流密度大于限制密度则不考虑
+            if (edge->people_num / edge->length > max_one_path_density)
+                continue;
+            // 如果这条边的目标地点位于路径中，则跳过，避免重复路径
+            if (node.visited.find(edge->endvex) != node.visited.end()) {
+                continue;
+            }
+
+            // 如果到达了终点，则判断人流量密度是否满足要求，并获取路径信息
+            size_t pp = node.people_num + edge->people_num,
+                   dis = node.dis + edge->length;
+            if (edge->endvex == end_index) {
+                // 如果路径人流量密度大于要求值，则跳过这条路径
+                if (pp / dis > max_density) {
+                    continue;
+                }
+                // 获取路径
+                Path path{dis, pp, std::move(node.path)};
+                // 将终点加入路径
+                path.pass_nodes.emplace_back(end_index);
+                // 将路径中的索引改为顶点
+                std::transform(
+                    path.pass_nodes.begin(), path.pass_nodes.end(),
+                    path.pass_nodes.begin(),
+                    [this](const size_t node_index) {
+                        return this->vexs[node_index].vertex;
+                    }
+                );
+                all_path.push_back(std::move(path));
+                if (!multi_flag) return all_path;
+            }
+            // 将这条边到达的顶点视为新顶点，初始化
+            PathNode new_node{edge->endvex, node.path, dis, pp, node.visited};
+            // 将这个顶点加入路径
+            new_node.path.emplace_back(edge->endvex);
+            new_node.visited.emplace(edge->endvex);
+            // 顶点加入队列中
+            que.push(std::move(new_node));
+        }
+    }
+    return all_path;
+}
+
+std::istream& operator>>(std::istream& is, AdjList& adj) {
+    VexType start, end;
+    size_t length, people_num;
+    while (is >> start >> end >> length >> people_num) {
+        adj.insert_edge(start, end, length, people_num);
+    }
+    return is;
+}
+std::ostream& operator<<(std::ostream& os, AdjList& adj) {
+    for (size_t index = 0; index < adj.vex_num; index++) {
+        for (auto edge = adj.vexs[index].edge_list; edge != nullptr;
+             edge = edge->next_edge) {
+            os << "start:" << adj.vexs[index].vertex
+               << "\tend:" << adj.vexs[edge->endvex].vertex
+               << "\tlength:" << edge->length
+               << "\tpeople_num:" << edge->people_num << std::endl;
+        }
+    }
+    return os;
 }
