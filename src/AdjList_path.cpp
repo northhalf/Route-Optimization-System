@@ -40,64 +40,6 @@ std::vector<Path> AdjList::find_all_path(
     );
     return all_path;
 }
-// 实现对于图的从起点到不同顶点的最短距离数组，对应人流量数组，以及每条最短路径终点的
-// 父节点数组的查找，并将这三个数据以元组形式打包返回
-std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
-AdjList::__get_dist_passFlow_parent(size_t start_index) {
-    struct Dist_vex {
-        size_t vex_index;
-        size_t dist;
-    };
-    // 初始化记录起点到对应顶点的最小距离的dist数组
-    std::vector<size_t> dist(vex_num, SIZE_MAX);
-    dist[start_index] = 0;  // 起点到自身的距离为0
-    // 记录与dist数组同步的路径人数信息
-    std::vector<size_t> people_num(vex_num);
-
-    // 记录最短路径的每个节点的父亲索引
-    std::vector<size_t> parent_index(vex_num, SIZE_MAX);
-
-    // 定义记录这个顶点是否被搜索过的无序集
-    std::unordered_set<size_t> visited_vex_set;
-    // 定义一个优先队列，将此时与起点距离最小的顶点放于堆顶
-    auto comparator = [](const Dist_vex& vex1, const Dist_vex& vex2) {
-        return vex1.dist > vex2.dist;
-    };
-    std::priority_queue<Dist_vex, std::vector<Dist_vex>, decltype(comparator)>
-        pq(comparator);
-    pq.emplace(start_index, 0);  // 先将起点放入优先队列中
-
-    // 循环直到队列为空
-    while (!pq.empty()) {
-        // 获取队前顶点和距离
-        size_t now_vex_index = pq.top().vex_index;
-        size_t now_vex_dis = pq.top().dist;
-        pq.pop();
-        // 如果这个距离不是最短距离则跳过
-        if (now_vex_dis > dist[now_vex_index]) continue;
-        // 搜索与这个顶点相连的边
-        for (auto edge = vexs[now_vex_index].edge_list; edge != NULL;
-             edge = edge->next_edge) {
-            size_t endvex = edge->endvex;
-            // 如果这条边的终点已经访问过，则跳过
-            if (visited_vex_set.find(endvex) != visited_vex_set.end()) continue;
-
-            // 如果从这个顶点走的距离更短则更新dist数组，并将这组数据加入队列中
-            if (size_t now_dist = now_vex_dis + edge->length;
-                now_dist < dist[endvex]) {
-                // 更新最短距离
-                dist[endvex] = now_dist;
-                // 更新对应的人数信息
-                people_num[endvex] =
-                    people_num[now_vex_index] + edge->people_num;
-                // 更新这个节点的父亲节点
-                parent_index[endvex] = now_vex_index;
-                pq.emplace(endvex, now_dist);
-            }
-        }
-    }
-    return {dist, people_num, parent_index};
-}
 
 // 查找从指定起点出发的所有最短路径
 std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
