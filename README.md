@@ -16,7 +16,7 @@
 
 `Clang-format`格式：
 
-```
+```plaintext
 { 
     BasedOnStyle: Google, 
     AlignAfterOpenBracket: BlockIndent,
@@ -25,11 +25,10 @@
 }
 ```
 
-目前尚需实现的功能：
+已实现的功能:
 
-- [x] `VexNode::insert_point_to()` 实现为顶点节点插入边节点（正在编写）
-- [x] `AdjList::insert_edge()` 实现为临接表插入一条边
-- [x] `AdjList::min_dist_multi_path_Dijkstra()` 实现Dijkstra算法查找从起点到其他所有顶点的最短路径
-- [x] `AdjList::min_dist_one_path_Dijkstra()` 实现Dijkstra算法查找从起点到某一个顶点的最短路径
-- [ ] `AdjList::min_dist_Floyed()` 实现Floyed算法查找所有最短路径
-- [ ] `AdjList::find_all_path()` 实现查找从指定起点到终点所有可能路径
+- 可行路径查找(根据人流量)
+- 冗余路径查找
+- 单起点、单目标的Dijkstra算法
+- 单起点、多目标的Dijkstra算法
+- 多起点、多目标的Floyed算法
