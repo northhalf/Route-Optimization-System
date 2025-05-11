@@ -59,7 +59,8 @@ public:
      * @param start: 起点
      * @return 映射终点和路径的哈希表
      **/
-    std::unordered_map<VexType, Path> min_dist_multi_path_Dijkstra(VexType start
+    std::unordered_map<VexType, Path> min_dist_multi_path_Dijkstra(
+        VexType start, size_t max_one_path_density
     );
 
     /*
@@ -68,7 +69,9 @@ public:
      * @param end: 终点
      * @return 最短路径
      **/
-    Path min_dist_one_path_Dijkstra(VexType start, VexType end);
+    Path min_dist_one_path_Dijkstra(
+        VexType start, VexType end, size_t max_one_path_density
+    );
 
     /*
      * @brief Floyed算法查找所有的最短路径
@@ -95,7 +98,7 @@ private:
     // 实现对于图的从起点到不同顶点的最短距离数组，对应人流量数组，以及每条最短路径终点的
     // 父节点数组的查找，并将这三个数据以元组形式打包返回
     std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
-    __get_dist_passFlow_parent(size_t start_index);
+    __get_dist_passFlow_parent(size_t start_index, size_t max_one_path_density);
     // 指定起点和终点查找路径，flag用于判断是否寻找多条路径
     std::vector<Path> __find_path(
         VexType start, VexType end, bool multi_flag, size_t max_density,

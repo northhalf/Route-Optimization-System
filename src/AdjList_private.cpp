@@ -86,7 +86,9 @@ std::vector<Path> AdjList::__find_path(
 // 实现对于图的从起点到不同顶点的最短距离数组，对应人流量数组，以及每条最短路径终点的
 // 父节点数组的查找，并将这三个数据以元组形式打包返回
 std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
-AdjList::__get_dist_passFlow_parent(size_t start_index) {
+AdjList::__get_dist_passFlow_parent(
+    size_t start_index, size_t max_one_path_density
+) {
     struct Dist_vex {
         size_t vex_index;
         size_t dist;
@@ -122,6 +124,9 @@ AdjList::__get_dist_passFlow_parent(size_t start_index) {
         for (auto edge = vexs[now_vex_index].edge_list; edge != NULL;
              edge = edge->next_edge) {
             size_t endvex = edge->endvex;
+            // 如果人流密度过大则跳过
+            if (edge->people_num / edge->length > max_one_path_density)
+                continue;
             // 如果这条边的终点已经访问过，则跳过
             if (visited_vex_set.find(endvex) != visited_vex_set.end()) continue;
 

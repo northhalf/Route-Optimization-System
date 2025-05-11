@@ -43,7 +43,7 @@ std::vector<Path> AdjList::find_all_path(
 
 // 查找从指定起点出发的所有最短路径
 std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
-    VexType start
+    VexType start, size_t max_one_path_density
 ) {
     // 首先查找顶点是否存在
     if (vex_index.find(start) == vex_index.end())
@@ -56,7 +56,7 @@ std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
     // people_num:   记录与dist数组同步的人流量信息
     // parend_index:记录最短路径的每个节点的父亲索引
     auto [dist, people_num, parent_index] =
-        __get_dist_passFlow_parent(start_index);
+        __get_dist_passFlow_parent(start_index, max_one_path_density);
 
     // 记录路径
     std::unordered_map<VexType, Path> path_map;
@@ -80,7 +80,9 @@ std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
 }
 
 // Dijkstra最短路径查找，返回一条指定的最短路径
-Path AdjList::min_dist_one_path_Dijkstra(VexType start, VexType end) {
+Path AdjList::min_dist_one_path_Dijkstra(
+    VexType start, VexType end, size_t max_one_path_density
+) {
     // 首先查找顶点是否存在
     if (vex_index.find(start) == vex_index.end() ||
         vex_index.find(end) == vex_index.end())
@@ -99,7 +101,7 @@ Path AdjList::min_dist_one_path_Dijkstra(VexType start, VexType end) {
     // people_num:   记录与dist数组同步的人流量信息
     // parend_index:记录最短路径的每个节点的父亲索引
     auto [dist, people_num, parent_index] =
-        __get_dist_passFlow_parent(start_index);
+        __get_dist_passFlow_parent(start_index, max_one_path_density);
 
     // 定义记录这个顶点是否被搜索过的无序集
     // 判断是否存在路径，不存在则返回空路径
