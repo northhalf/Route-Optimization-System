@@ -8,8 +8,8 @@
 #include "AdjList.hpp"
 
 std::vector<Path> AdjList::__find_path(
-    VexType start, VexType end, bool multi_flag, size_t max_density,
-    size_t max_one_path_density
+    VexType start, VexType end, bool multi_flag, double max_density,
+    double max_one_path_density
 ) {
     std::vector<Path> all_path;
     // 路径节点，记录这个节点的索引，从起点到这个顶点的路径，
@@ -39,7 +39,9 @@ std::vector<Path> AdjList::__find_path(
         for (auto edge = vexs[node.index].edge_list; edge != nullptr;
              edge = edge->next_edge) {
             // 如果这条边的人流密度大于限制密度则不考虑
-            if (edge->people_num / edge->length > max_one_path_density)
+            if (static_cast<double>(edge->people_num) /
+                    static_cast<double>(edge->length) >
+                max_one_path_density)
                 continue;
             // 如果这条边的目标地点位于路径中，则跳过，避免重复路径
             if (node.visited.find(edge->endvex) != node.visited.end()) {
@@ -51,7 +53,8 @@ std::vector<Path> AdjList::__find_path(
                    dis = node.dis + edge->length;
             if (edge->endvex == end_index) {
                 // 如果路径人流量密度大于要求值，则跳过这条路径
-                if (pp / dis > max_density) {
+                if (static_cast<double>(pp) / static_cast<double>(dis) >
+                    max_density) {
                     continue;
                 }
                 // 获取路径
@@ -87,7 +90,7 @@ std::vector<Path> AdjList::__find_path(
 // 父节点数组的查找，并将这三个数据以元组形式打包返回
 std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
 AdjList::__get_dist_passFlow_parent(
-    size_t start_index, size_t max_one_path_density
+    size_t start_index, double max_one_path_density
 ) {
     struct Dist_vex {
         size_t vex_index;
@@ -125,7 +128,9 @@ AdjList::__get_dist_passFlow_parent(
              edge = edge->next_edge) {
             size_t endvex = edge->endvex;
             // 如果人流密度过大则跳过
-            if (edge->people_num / edge->length > max_one_path_density)
+            if (static_cast<double>(edge->people_num) /
+                    static_cast<double>(edge->length) >
+                max_one_path_density)
                 continue;
             // 如果这条边的终点已经访问过，则跳过
             if (visited_vex_set.find(endvex) != visited_vex_set.end()) continue;

@@ -50,8 +50,8 @@ public:
      * @return 一条可行路径
      **/
     Path possible_evacuation(
-        VexType start, VexType end, size_t max_density,
-        size_t max_one_path_density
+        VexType start, VexType end, double max_density,
+        double max_one_path_density
     );
 
     /*
@@ -60,7 +60,8 @@ public:
      * @return 映射终点和路径的哈希表
      **/
     std::unordered_map<VexType, Path> min_dist_multi_path_Dijkstra(
-        VexType start, size_t max_one_path_density
+        VexType start,
+        double max_one_path_density = std::numeric_limits<double>::max()
     );
 
     /*
@@ -70,7 +71,8 @@ public:
      * @return 最短路径
      **/
     Path min_dist_one_path_Dijkstra(
-        VexType start, VexType end, size_t max_one_path_density
+        VexType start, VexType end,
+        double max_one_path_density = std::numeric_limits<double>::max()
     );
 
     /*
@@ -78,7 +80,9 @@ public:
      * @return 哈希表嵌套，将起点和终点映射到一条路径
      **/
     std::unordered_map<VexType, std::unordered_map<VexType, Path>>
-    min_dist_Floyed();
+    min_dist_Floyed(
+        double max_one_path_density = std::numeric_limits<double>::max()
+    );
 
     /*
      * @brief 查找从指定起点和终点的所有可能路径
@@ -89,8 +93,8 @@ public:
      * @return 包含所有可能路径的向量，按路径长度递增排序
      **/
     std::vector<Path> find_all_path(
-        VexType start, VexType end, size_t max_density = SIZE_MAX,
-        size_t max_one_path_density = SIZE_MAX
+        VexType start, VexType end, double max_density = SIZE_MAX,
+        double max_one_path_density = SIZE_MAX
     );
     friend std::ostream& operator<<(std::ostream& os, AdjList& adj);
 
@@ -98,11 +102,11 @@ private:
     // 实现对于图的从起点到不同顶点的最短距离数组，对应人流量数组，以及每条最短路径终点的
     // 父节点数组的查找，并将这三个数据以元组形式打包返回
     std::tuple<std::vector<size_t>, std::vector<size_t>, std::vector<size_t>>
-    __get_dist_passFlow_parent(size_t start_index, size_t max_one_path_density);
+    __get_dist_passFlow_parent(size_t start_index, double max_one_path_density);
     // 指定起点和终点查找路径，flag用于判断是否寻找多条路径
     std::vector<Path> __find_path(
-        VexType start, VexType end, bool multi_flag, size_t max_density,
-        size_t max_one_path_density
+        VexType start, VexType end, bool multi_flag, double max_density,
+        double max_one_path_density
     );
 
     std::vector<VexNode> vexs;                      // 顶点数组

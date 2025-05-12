@@ -16,7 +16,7 @@
 
 // 查找可行路径,bfs
 Path AdjList::possible_evacuation(
-    VexType start, VexType end, size_t max_density, size_t max_one_path_density
+    VexType start, VexType end, double max_density, double max_one_path_density
 ) {
     auto all_path =
         __find_path(start, end, false, max_density, max_one_path_density);
@@ -28,7 +28,7 @@ Path AdjList::possible_evacuation(
 
 // 查找所有可行路径
 std::vector<Path> AdjList::find_all_path(
-    VexType start, VexType end, size_t max_density, size_t max_one_path_density
+    VexType start, VexType end, double max_density, double max_one_path_density
 ) {
     auto all_path =
         __find_path(start, end, true, max_density, max_one_path_density);
@@ -43,7 +43,7 @@ std::vector<Path> AdjList::find_all_path(
 
 // 查找从指定起点出发的所有最短路径
 std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
-    VexType start, size_t max_one_path_density
+    VexType start, double max_one_path_density
 ) {
     // 首先查找顶点是否存在
     if (vex_index.find(start) == vex_index.end())
@@ -81,7 +81,7 @@ std::unordered_map<VexType, Path> AdjList::min_dist_multi_path_Dijkstra(
 
 // Dijkstra最短路径查找，返回一条指定的最短路径
 Path AdjList::min_dist_one_path_Dijkstra(
-    VexType start, VexType end, size_t max_one_path_density
+    VexType start, VexType end, double max_one_path_density
 ) {
     // 首先查找顶点是否存在
     if (vex_index.find(start) == vex_index.end() ||
@@ -119,7 +119,7 @@ Path AdjList::min_dist_one_path_Dijkstra(
 }
 
 std::unordered_map<VexType, std::unordered_map<VexType, Path>>
-AdjList::min_dist_Floyed() {
+AdjList::min_dist_Floyed(double max_one_path_density) {
     struct path_dist {
         size_t parent;            // 从哪个顶点到达这个顶点
         size_t dist, people_num;  // 路径距离和人数
@@ -145,12 +145,18 @@ AdjList::min_dist_Floyed() {
                 // 如果路径不存在则跳过
                 if (dist[i][k].dist == SIZE_MAX || dist[k][j].dist == SIZE_MAX)
                     continue;
+                size_t dis = dist[i][k].dist + dist[k][j].dist;
+                // 如果人流密度过大则跳过
+                if (static_cast<double>(
+                        dist[i][k].people_num + dist[k][j].people_num
+                    ) / static_cast<double>(dis) >
+                    max_one_path_density)
+                    continue;
 
                 // 路径存在
 
                 // 如果路径比原来更短则选择
-                if (size_t dis = dist[i][k].dist + dist[k][j].dist;
-                    dis < dist[i][j].dist) {
+                if (dis < dist[i][j].dist) {
                     dist[i][j] = {
                         k, dis, dist[i][k].people_num + dist[k][j].people_num};
                 }
