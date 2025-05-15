@@ -4,6 +4,7 @@
 #define ADJLIST_HPP
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -61,7 +62,7 @@ public:
      **/
     std::unordered_map<VexType, Path> min_dist_multi_path_Dijkstra(
         VexType start,
-        double max_one_path_density = std::numeric_limits<double>::max()
+        double max_one_path_density = std::numeric_limits<double>::infinity()
     );
 
     /*
@@ -72,7 +73,7 @@ public:
      **/
     Path min_dist_one_path_Dijkstra(
         VexType start, VexType end,
-        double max_one_path_density = std::numeric_limits<double>::max()
+        double max_one_path_density = std::numeric_limits<double>::infinity()
     );
 
     /*
@@ -81,7 +82,7 @@ public:
      **/
     std::unordered_map<VexType, std::unordered_map<VexType, Path>>
     min_dist_Floyed(
-        double max_one_path_density = std::numeric_limits<double>::max()
+        double max_one_path_density = std::numeric_limits<double>::infinity()
     );
 
     /*
@@ -93,8 +94,9 @@ public:
      * @return 包含所有可能路径的向量，按路径长度递增排序
      **/
     std::vector<Path> find_all_path(
-        VexType start, VexType end, double max_density = SIZE_MAX,
-        double max_one_path_density = SIZE_MAX
+        VexType start, VexType end,
+        double max_density = std::numeric_limits<double>::infinity(),
+        double max_one_path_density = std::numeric_limits<double>::infinity()
     );
     friend std::ostream& operator<<(std::ostream& os, AdjList& adj);
 

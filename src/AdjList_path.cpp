@@ -126,29 +126,30 @@ AdjList::min_dist_Floyed(double max_one_path_density) {
     };
 
     // 距离矩阵
-    std::vector<std::vector<path_dist>> dist(
+    std::vector<std::vector<path_dist>> matrix(
         vex_num, std::vector<path_dist>(vex_num, {SIZE_MAX, SIZE_MAX, SIZE_MAX})
     );
     // 遍历临接表获取初始值
     for (size_t i = 0; i < vex_num; i++) {
         for (auto edge = vexs[i].edge_list; edge != nullptr;
              edge = edge->next_edge) {
-            dist[i][edge->endvex] = {i, edge->length, edge->people_num};
+            matrix[i][edge->endvex] = {i, edge->length, edge->people_num};
         }
     }
     // 对角线元素距离为0
-    for (size_t i = 0; i < vex_num; i++) dist[i][i] = {i, 0, 0};
+    for (size_t i = 0; i < vex_num; i++) matrix[i][i] = {i, 0, 0};
     // 三层循环，遍历中间节点，起始节点和目标顶点
     for (size_t k = 0; k < vex_num; k++) {
         for (size_t i = 0; i < vex_num; i++) {
             for (size_t j = 0; j < vex_num; j++) {
                 // 如果路径不存在则跳过
-                if (dist[i][k].dist == SIZE_MAX || dist[k][j].dist == SIZE_MAX)
+                if (matrix[i][k].dist == SIZE_MAX ||
+                    matrix[k][j].dist == SIZE_MAX)
                     continue;
-                size_t dis = dist[i][k].dist + dist[k][j].dist;
+                size_t dis = matrix[i][k].dist + matrix[k][j].dist;
                 // 如果人流密度过大则跳过
                 if (static_cast<double>(
-                        dist[i][k].people_num + dist[k][j].people_num
+                        matrix[i][k].people_num + matrix[k][j].people_num
                     ) / static_cast<double>(dis) >
                     max_one_path_density)
                     continue;
@@ -156,9 +157,10 @@ AdjList::min_dist_Floyed(double max_one_path_density) {
                 // 路径存在
 
                 // 如果路径比原来更短则选择
-                if (dis < dist[i][j].dist) {
-                    dist[i][j] = {
-                        k, dis, dist[i][k].people_num + dist[k][j].people_num};
+                if (dis < matrix[i][j].dist) {
+                    matrix[i][j] = {
+                        matrix[k][j].parent, dis,
+                        matrix[i][k].people_num + matrix[k][j].people_num};
                 }
             }
         }
@@ -169,12 +171,12 @@ AdjList::min_dist_Floyed(double max_one_path_density) {
     for (size_t i = 0; i < vex_num; i++) {
         for (size_t j = 0; j < vex_num; j++) {
             // 如果路径不存在则跳过
-            if (dist[i][j].dist == SIZE_MAX) continue;
+            if (matrix[i][j].dist == SIZE_MAX) continue;
             Path path;  // 记录路径
-            path.distance = dist[i][j].dist;
-            path.people_num = dist[i][j].people_num;
+            path.distance = matrix[i][j].dist;
+            path.people_num = matrix[i][j].people_num;
             // 回溯
-            for (size_t now = j; now != i; now = dist[i][now].parent) {
+            for (size_t now = j; now != i; now = matrix[i][now].parent) {
                 path.pass_nodes.push_back(vexs[now].vertex);
             }
             path.pass_nodes.push_back(vexs[i].vertex);
