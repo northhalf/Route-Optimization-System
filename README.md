@@ -14,21 +14,12 @@
 
 ***
 
-`Clang-format`格式：
-
-```plaintext
-{ 
-    BasedOnStyle: Google, 
-    AlignAfterOpenBracket: BlockIndent,
-    IndentWidth: 4,
-    AccessModifierOffset: -4
-}
-```
+测试数据格式为四元组：1.起点;2.终点;3.长度;4.人数。
 
 已实现的功能:
 
-- 可行路径查找(根据人流量)
-- 冗余路径查找
-- 单起点、单目标的Dijkstra算法
-- 单起点、多目标的Dijkstra算法
-- 多起点、多目标的Floyed算法
+- 可行路径查找(根据人流量)(`possible_evacuation`)
+- 冗余路径查找(`find_all_path`)
+- 单起点、单目标的Dijkstra算法(`min_dist_one_path_Dijksra`)
+- 单起点、多目标的Dijkstra算法(`min_dist_multi_path_Dijkstra`)
+- 多起点、多目标的Floyed算法(`min_dist_Floyed`)
